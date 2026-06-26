@@ -152,9 +152,8 @@ class MOMENTTrainer(Trainer):
                 
         return (eval_loss, None, None)
 
-# Задай свои реальные датасеты
 MODELS = ["AutonLab/MOMENT-1-small", "AutonLab/MOMENT-1-base", "AutonLab/MOMENT-1-large"]
-DATASETS = ["pure_0.05B", "pure_0.1B", "mixed_0.05B", "mixed_0.1B",, "pure_0.25B",  "mixed_0.25B", "pure_0.5B", "mixed_0.5B", 
+DATASETS = ["pure_0.05B", "pure_0.1B", "mixed_0.05B", "mixed_0.1B", "pure_0.25B",  "mixed_0.25B", "pure_0.5B", "mixed_0.5B", 
             "pure_1.0B",  "mixed_1.0B", "pure_2.0B", "mixed_2.0B",]
 
 def train_sweep():
