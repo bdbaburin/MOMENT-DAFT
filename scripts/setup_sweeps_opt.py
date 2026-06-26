@@ -274,7 +274,7 @@ def main():
         
         for s_id in sweep_ids:
             print(f"[*] Подключение к очереди: {s_id}")
-            wandb.agent(s_id, train_sweep, count=7, project="moment-lora-DAPT-v2")
+            wandb.agent(s_id, train_sweep, count=5, project="moment-lora-DAPT-v2")
         
         return
 
