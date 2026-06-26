@@ -18,23 +18,16 @@ def generate_mask_on_gpu(real_mask: torch.Tensor, patch_len: int = 8, mask_ratio
     num_patches = L // patch_len
     device = real_mask.device
     
-    # Переводим real_mask в патчевое представление [B, num_patches, patch_len]
     patch_real_mask = real_mask.view(B, num_patches, patch_len)
     
-    # Патч считается здоровым (healthy), если ВСЕ его точки являются валидными данными
     healthy_patches = patch_real_mask.bool().all(dim=2) # Форма: [B, num_patches]
-    
-    # Генерируем равномерное распределение вероятностей для маскирования
+
     rand_tensor = torch.rand(B, num_patches, device=device)
     
-    # Патч маскируется искусственно, если он прошел по ratio И является здоровым
     artificial_mask = (rand_tensor < mask_ratio) & healthy_patches # Форма: [B, num_patches]
-    
-    # Формируем moment_patch_mask для модели:
-    # Патч остается наблюдаемым (1), если он изначально здоровый и не был выбран для маскирования
+
     moment_patch_mask = healthy_patches & (~artificial_mask)
     
-    # Разворачиваем патчевые маски обратно в поточечные последовательности длины L
     moment_mask = torch.repeat_interleave(moment_patch_mask, patch_len, dim=1).long() # [B, L]
     loss_mask = torch.repeat_interleave(artificial_mask, patch_len, dim=1).bool()     # [B, L]
     input_mask = real_mask.squeeze(1).long()                                          # [B, L]

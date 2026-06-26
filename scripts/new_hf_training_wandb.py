@@ -25,7 +25,6 @@ class MOMENTDataset(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        # ФИКС 1: Безопасный цикл вместо рекурсии
         while True:
             ts = np.array(self.dataset[idx]["target"], dtype=np.float32)
             if ts.ndim > 1: ts = ts.flatten()

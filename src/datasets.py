@@ -13,7 +13,6 @@ class MOMENTDataset(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        # Архитектурный фильтр: перебираем, пока не найдем ряд по стандартам MOMENT
         for _ in range(100):
             ts = np.array(self.dataset[idx]["target"], dtype=np.float32)
             if ts.ndim > 1: ts = ts.flatten()
@@ -31,12 +30,10 @@ class MOMENTDataset(Dataset):
             # 1 - данные есть, 0 - NaN/паддинг
             input_mask = ~np.isnan(window)
             
-            # --- СТРОГО ПО СТАТЬЕ MOMENT (Раздел 3.1): ---
             # 1. discard sequences with fewer than L/2 observations
             if input_mask.sum() >= (self.seq_len // 2):
                 valid_data = window[input_mask]
                 
-                # 2. or with constant values (Защита RevIN от деления на 0)
                 if np.std(valid_data) > 1e-5:
                     window = np.nan_to_num(window, nan=0.0)
                     return {
@@ -44,7 +41,6 @@ class MOMENTDataset(Dataset):
                         "input_mask": torch.tensor(input_mask, dtype=torch.long)         # [512]
                     }
             
-            # Если ряд не прошел — берем другой
             idx = random.randint(0, len(self.dataset) - 1)
             
         return self.__getitem__(random.randint(0, len(self.dataset) - 1))

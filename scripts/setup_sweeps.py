@@ -6,7 +6,7 @@ import random
 import wandb
 from torch.utils.data import Dataset
 from datasets import load_dataset
-from transformers import Trainer, TrainingArguments, EarlyStoppingCallback # <--- ДОБАВИЛИ EARLY STOPPING
+from transformers import Trainer, TrainingArguments, EarlyStoppingCallback 
 from dotenv import load_dotenv
 from momentfm.utils.masking import Masking
 
@@ -182,7 +182,7 @@ def train_sweep():
         model = get_moment_lora(
             model_name=config.model_name, 
             r=config.lora_r, 
-            lora_alpha=current_alpha
+            alpha=current_alpha
         )
         
         if hasattr(model, "config") and not hasattr(model.config, "to_dict"):
