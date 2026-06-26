@@ -34,7 +34,7 @@ class MOMENTDataset(Dataset):
 
     def __getitem__(self, idx):
         while True:
-            ts = np.array(self.dataset[idx]["target"], dtype=np.float32)
+            ts = np.array(self.dataset[idx]["target"], dtype=np.float32).copy()
             if ts.ndim > 1: ts = ts.flatten()
             ts_len = len(ts)
 
