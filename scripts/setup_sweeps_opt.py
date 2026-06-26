@@ -1,5 +1,6 @@
 import os
 import torch
+import gc
 import torch.nn.functional as F
 import numpy as np
 import random
@@ -13,6 +14,9 @@ from momentfm.utils.masking import Masking
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.model_builder import get_moment_lora
+
+os.environ["WANDB_START_METHOD"] = "thread" 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class MOMENTDataset(Dataset):
     def __init__(self, hf_split, seq_len=512, is_train=True):
@@ -223,6 +227,7 @@ def train_sweep():
             greater_is_better=False,         
             
             dataloader_num_workers=6,
+            dataloader_persistent_workers=False,
             remove_unused_columns=False,     
             report_to="wandb",
             save_total_limit=1               
@@ -237,6 +242,13 @@ def train_sweep():
         )
 
         trainer.train()
+        
+        del trainer
+        del model
+        del train_dataset
+        del eval_dataset
+        torch.cuda.empty_cache()
+        gc.collect()
 
 def main():
     load_dotenv()
@@ -255,7 +267,7 @@ def main():
         
         for s_id in sweep_ids:
             print(f"[*] Подключение к очереди: {s_id}")
-            wandb.agent(s_id, train_sweep, count=10, project="moment-lora-DAPT-v2")
+            wandb.agent(s_id, train_sweep, count=7, project="moment-lora-DAPT-v2")
         
         return
 
