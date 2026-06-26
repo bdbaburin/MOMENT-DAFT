@@ -233,7 +233,7 @@ def train_sweep():
             metric_for_best_model="eval_loss", 
             greater_is_better=False,         
             
-            dataloader_num_workers=6,
+            dataloader_num_workers=0,
             dataloader_persistent_workers=False,
             remove_unused_columns=False,     
             report_to="wandb",
