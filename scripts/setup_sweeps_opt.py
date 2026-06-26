@@ -210,14 +210,14 @@ def train_sweep():
             
             warmup_steps=20,
             max_grad_norm=5.0,               
-            num_train_epochs=4,
+            num_train_epochs=5,
             bf16=True,                       
             logging_steps=10,
             
             eval_strategy="steps",           
-            eval_steps=50,                  
+            eval_steps=10,                  
             save_strategy="steps",           
-            save_steps=50,                  
+            save_steps=10,                  
             load_best_model_at_end=True,     
             metric_for_best_model="eval_loss", 
             greater_is_better=False,         
@@ -244,7 +244,7 @@ def main():
     if wandb_key:
         wandb.login(key=wandb_key)
         
-    os.environ["WANDB_PROJECT"] = "moment-lora-DAPT"
+    os.environ["WANDB_PROJECT"] = "moment-lora-DAPT-v2"
     os.environ["WANDB_LOG_MODEL"] = "checkpoint" 
 
     sweep_ids_env = os.getenv("SWEEP_IDS")
@@ -255,7 +255,7 @@ def main():
         
         for s_id in sweep_ids:
             print(f"[*] Подключение к очереди: {s_id}")
-            wandb.agent(s_id, train_sweep, count=10, project="moment-lora-DAPT")
+            wandb.agent(s_id, train_sweep, count=10, project="moment-lora-DAPT-v2")
         
         return
 
@@ -282,7 +282,7 @@ def main():
                     'lr_scheduler_type': {'values': ['linear', 'cosine', 'constant']}
                 }
             }
-            s_id = wandb.sweep(sweep_config, project="moment-lora-DAPT")
+            s_id = wandb.sweep(sweep_config, project="moment-lora-DAPT-v2")
             generated_sweeps.append(s_id)
             print(f"[{model_name.split('-')[-1]} | {ds_name}] -> SWEEP_ID: {s_id}")
 
