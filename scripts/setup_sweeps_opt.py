@@ -15,6 +15,11 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.model_builder import get_moment_lora
 
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["WANDB_HTTP_TIMEOUT"] = "60"
+
 os.environ["WANDB_START_METHOD"] = "thread" 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -186,8 +191,8 @@ def train_sweep():
         train_15_pct = int(0.35 * len(full_train))
         eval_15_pct = int(0.15 * len(full_eval))
 
-        hf_dataset_train = full_train.shuffle(seed=42).select(range(train_15_pct))
-        hf_dataset_eval = full_eval.shuffle(seed=42).select(range(eval_15_pct))
+        hf_dataset_train = full_train.shuffle(seed=42).select(range(train_15_pct)).with_format("numpy")
+        hf_dataset_eval = full_eval.shuffle(seed=42).select(range(eval_15_pct)).with_format("numpy")
         
         train_dataset = MOMENTDataset(hf_dataset_train, is_train=True)
         eval_dataset = MOMENTDataset(hf_dataset_eval, is_train=False)
