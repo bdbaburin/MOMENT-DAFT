@@ -179,7 +179,7 @@ def train_sweep():
             token=hf_token
         )
         
-        train_15_pct = int(0.15 * len(full_train))
+        train_15_pct = int(0.35 * len(full_train))
         eval_15_pct = int(0.15 * len(full_eval))
 
         hf_dataset_train = full_train.shuffle(seed=42).select(range(train_15_pct))
