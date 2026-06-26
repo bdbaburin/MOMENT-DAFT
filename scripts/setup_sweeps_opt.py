@@ -52,7 +52,6 @@ class MOMENTDataset(Dataset):
             idx = random.randint(0, len(self.dataset) - 1)
 
 
-# --- 2. КАСТОМНЫЙ TRAINER ДЛЯ MTM LOSS ---
 class MOMENTTrainer(Trainer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -103,7 +102,6 @@ class MOMENTTrainer(Trainer):
         if model.training and wandb.run is not None:
             self.cumulative_patches += X.shape[0] * 64
             
-            # Проверяем, что текущий шаг кратен logging_steps
             if self.state.global_step % self.args.logging_steps == 0:
                 wandb.log({
                     "moment_metrics/train_loss_scaled": loss_scaled.item(),
@@ -156,7 +154,7 @@ class MOMENTTrainer(Trainer):
 
 # Задай свои реальные датасеты
 MODELS = ["AutonLab/MOMENT-1-small", "AutonLab/MOMENT-1-base", "AutonLab/MOMENT-1-large"]
-DATASETS = ["pure_0.25B",  "mixed_0.25B", "pure_0.5B", "mixed_0.5B", 
+DATASETS = ["pure_0.05B", "pure_0.1B", "mixed_0.05B", "mixed_0.1B",, "pure_0.25B",  "mixed_0.25B", "pure_0.5B", "mixed_0.5B", 
             "pure_1.0B",  "mixed_1.0B", "pure_2.0B", "mixed_2.0B",]
 
 def train_sweep():
@@ -258,7 +256,7 @@ def main():
         
         for s_id in sweep_ids:
             print(f"[*] Подключение к очереди: {s_id}")
-            wandb.agent(s_id, train_sweep, count=10, project="moment-lora-tuning")
+            wandb.agent(s_id, train_sweep, count=10, project="moment-lora-DAPT")
         
         return
 
@@ -285,7 +283,7 @@ def main():
                     'lr_scheduler_type': {'values': ['linear', 'cosine', 'constant']}
                 }
             }
-            s_id = wandb.sweep(sweep_config, project="moment-lora-tuning")
+            s_id = wandb.sweep(sweep_config, project="moment-lora-DAPT")
             generated_sweeps.append(s_id)
             print(f"[{model_name.split('-')[-1]} | {ds_name}] -> SWEEP_ID: {s_id}")
 
