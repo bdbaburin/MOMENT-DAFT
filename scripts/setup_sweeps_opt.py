@@ -178,14 +178,16 @@ def train_sweep():
             name=config.dataset_name, 
             split="train",
             num_proc=8,
-            token=hf_token
+            token=hf_token,
+            keep_in_memory=True,
         )
         full_eval = load_dataset(
             "bdbaburin/MOMENT-DAPT-Scaling", 
             name=config.dataset_name, 
             split="validation",
             num_proc=8,
-            token=hf_token
+            token=hf_token,
+            keep_in_memory=True,
         )
         
         train_15_pct = int(0.35 * len(full_train))
