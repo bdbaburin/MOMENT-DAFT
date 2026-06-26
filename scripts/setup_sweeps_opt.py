@@ -34,29 +34,34 @@ class MOMENTDataset(Dataset):
 
     def __getitem__(self, idx):
         while True:
-            ts = np.array(self.dataset[idx]["target"], dtype=np.float32).copy()
-            if ts.ndim > 1: ts = ts.flatten()
-            ts_len = len(ts)
+            try:
+                ts = np.array(self.dataset[idx]["target"], dtype=np.float32).copy()
+                if ts.ndim > 1: ts = ts.flatten()
+                ts_len = len(ts)
 
-            if ts_len > self.seq_len:
-                start_idx = random.randint(0, ts_len - self.seq_len) if self.is_train else ts_len - self.seq_len
-                window = ts[start_idx : start_idx + self.seq_len]
-            elif ts_len < self.seq_len:
-                pad_len = self.seq_len - ts_len
-                window = np.pad(ts, (pad_len, 0), constant_values=np.nan)
-            else:
-                window = ts.copy()
+                if ts_len > self.seq_len:
+                    start_idx = random.randint(0, ts_len - self.seq_len) if self.is_train else ts_len - self.seq_len
+                    window = ts[start_idx : start_idx + self.seq_len]
+                elif ts_len < self.seq_len:
+                    pad_len = self.seq_len - ts_len
+                    window = np.pad(ts, (pad_len, 0), constant_values=np.nan)
+                else:
+                    window = ts.copy()
 
-            input_mask = ~np.isnan(window)
-            
-            if input_mask.sum() >= (self.seq_len // 2):
-                valid_data = window[input_mask]
-                if np.std(valid_data) > 1e-5:
-                    window = np.nan_to_num(window, nan=0.0)
-                    return {
-                        "x_enc": torch.tensor(window, dtype=torch.float32).unsqueeze(0),
-                        "input_mask": torch.tensor(input_mask, dtype=torch.long)
-                    }
+                input_mask = ~np.isnan(window)
+                
+                if input_mask.sum() >= (self.seq_len // 2):
+                    valid_data = window[input_mask]
+                    if np.std(valid_data) > 1e-5:
+                        # window = np.nan_to_num(window, nan=0.0)
+                        window[np.isnan(window)] = 0.0
+                        window[np.isinf(window)] = 0.0
+                        return {
+                            "x_enc": torch.tensor(window, dtype=torch.float32).unsqueeze(0),
+                            "input_mask": torch.tensor(input_mask, dtype=torch.long)
+                        }
+            except:
+                pass
             
             idx = random.randint(0, len(self.dataset) - 1)
 
