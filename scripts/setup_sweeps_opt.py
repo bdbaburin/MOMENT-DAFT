@@ -175,6 +175,8 @@ def train_sweep():
         
         if hasattr(model, "config") and not hasattr(model.config, "to_dict"):
             model.config.__class__.to_dict = lambda self: vars(self)
+            
+        steps = 100 if ('2.0B' in config.dataset_name) or ('1.0B' in config.dataset_name) else 10
         
         training_args = TrainingArguments(
             output_dir="./local_sweep_checkpoints",
@@ -192,9 +194,9 @@ def train_sweep():
             logging_steps=10,
             
             eval_strategy="steps",           
-            eval_steps=10,                  
+            eval_steps=steps,                  
             save_strategy="steps",           
-            save_steps=10,                  
+            save_steps=steps,                  
             load_best_model_at_end=True,     
             metric_for_best_model="eval_loss", 
             greater_is_better=False,         
