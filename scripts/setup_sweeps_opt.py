@@ -214,8 +214,17 @@ def train_sweep():
             callbacks=[EarlyStoppingCallback(early_stopping_patience=3)] 
         )
 
-        trainer.train()
-        
+        try:
+            trainer.train()
+        except ValueError as e:
+            if "JSON compliant" in str(e) or "inf" in str(e).lower():
+                print(f"\n[!] Overflow")
+                
+                wandb.log({"eval/loss": 2.0, "train/loss": 2.0})
+                return 
+            else:
+                raise e
+            
         del trainer
         del model
         del train_dataset

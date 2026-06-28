@@ -28,13 +28,12 @@ class MOMENTDataset(Dataset):
                 else:
                     window = ts.copy()
 
-                input_mask = ~np.isnan(window)
+                input_mask = ~np.isnan(window) & ~np.isinf(window)
                 
                 if input_mask.sum() >= (self.seq_len // 2):
                     valid_data = window[input_mask]
                     if np.std(valid_data) > 1e-5:
-                        window[np.isnan(window)] = 0.0
-                        window[np.isinf(window)] = 0.0
+                        window = np.nan_to_num(window, nan=0.0, posinf=0.0, neginf=0.0)
                         return {
                             "x_enc": torch.tensor(window, dtype=torch.float32).unsqueeze(0),
                             "input_mask": torch.tensor(input_mask, dtype=torch.long)
